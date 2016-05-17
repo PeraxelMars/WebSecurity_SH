@@ -1,0 +1,82 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <UsingTask TaskName="SvnVersion" AssemblyFile="$(MSBuildProjectDirectory)\Aptus.Common\tools\MSBuild.Community.Tasks.v1.4.0.78\MSBuild.Community.Tasks.dll"/>
+  <UsingTask TaskName="FileUpdate" AssemblyFile="$(MSBuildProjectDirectory)\Aptus.Common\tools\MSBuild.Community.Tasks.v1.4.0.78\MSBuild.Community.Tasks.dll"/>
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">Any CPU</Platform>
+
+    <OutputPath>$(MSBuildProjectDirectory)\..\bin\$(Configuration)\build\</OutputPath>
+    <CommonPath>$(MSBuildProjectDirectory)\Aptus.Common</CommonPath>
+    <SolutionPath>$(MSBuildProjectDirectory)\WebSecurity.sln</SolutionPath>
+
+    <!-- NOTE: Maybe we should build for x64 too...? -->
+    <PlatformTarget>x86</PlatformTarget>
+    <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- SVN 1.7 since Subversion plugin in Jenkins doesn't supprt 1.8 yet... -->
+    <SVNToolPath>$(CommonPath)\tools\svn-1.7.19-x64</SVNToolPath>
+    <!--<SVNToolPath>$(CommonPath)\tools\svn-1.8.10</SVNToolPath>-->
+
+    <DeployOnBuild>True</DeployOnBuild>
+    <PublishProfile>$(Configuration)</PublishProfile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <Optimize>false</Optimize>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <Target Name="CleanUp">
+    <RemoveDir Directories="$(OutputPath)"/>
+  </Target>
+
+  <Target Name="Compile" DependsOnTargets="CleanUp">
+    <!-- Restore NuGet packages before compiling to be sure all packages exist -->
+    <Exec Command="&quot;$(CommonPath)\src\.nuget\NuGet.exe&quot; restore &quot;$(CommonPath)\src\Common.sln&quot;" />
+    <Exec Command="&quot;$(CommonPath)\src\.nuget\NuGet.exe&quot; restore &quot;$(SolutionPath)&quot;" />
+
+    <ItemGroup>
+      <CommonAssemblyInfoFiles Include="$(CommonPath)\src\GlobalAssemblyInfo.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+      <AssemblyInfoFiles Include="$(MSBuildProjectDirectory)\WebSecurity\Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+
+    <!-- Getting the revision number from svn by using the svnVersion -->
+    <SvnVersion LocalPath="$(CommonPath)" ToolPath="$(SVNToolPath)" >
+      <Output TaskParameter="Revision" PropertyName="CommonRevision" />
+    </SvnVersion>
+    <SvnVersion LocalPath="$(MSBuildProjectDirectory)" ToolPath="$(SVNToolPath)" >
+      <Output TaskParameter="Revision" PropertyName="Revision" />
+    </SvnVersion>
+
+    <!-- Updating version info in GlobalAssemblyInfo.cs -->
+    <FileUpdate Files="@(CommonAssemblyInfoFiles)" Regex='(\d+)\.(\d+)\.(\d+)\.(\d+)' ReplacementText="$1.$2.$3.$(CommonRevision)" />
+    <FileUpdate Files="@(AssemblyInfoFiles)" Regex='(\d+)\.(\d+)\.(\d+)\.(\d+)' ReplacementText="$1.$2.$3.$(Revision)" />
+
+    <MSBuild Projects="$(SolutionPath)"
+             Targets="Clean; Rebuild"
+             Properties="Configuration=$(Configuration);
+                         OutputPath=$(OutputPath);
+                         Optimize=$(Optimize);
+                         DebugSymbols=$(DebugSymbols);
+                         DebugType=$(DebugType);
+                         StyleCopTreatErrorsAsWarnings=$(StyleCopTreatErrorsAsWarnings);
+                         TreatWarningsAsErrors=$(TreatWarningsAsErrors);
+                         DeployOnBuild=$(DeployOnBuild);
+                         PublishProfile=$(PublishProfile)">
+    </MSBuild>
+
+    <!-- Revert GlobalAssemblyInfo.cs to be able to update version numbers without getting conflicts on build server -->
+    <Exec Command="&quot;$(SVNToolPath)\svn.exe&quot; revert &quot;$(CommonPath)\src\GlobalAssemblyInfo.cs&quot;" />
+    <Exec Command="&quot;$(SVNToolPath)\svn.exe&quot; revert &quot;$(MSBuildProjectDirectory)\WebSecurity\Properties\AssemblyInfo.cs&quot;" />
+  </Target>
+</Project>

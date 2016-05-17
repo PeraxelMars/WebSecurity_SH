@@ -1,0 +1,98 @@
+@model SH_WebSecurity.AppTestData
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <style type="text/css">
+        body, select {
+            color: #212121;
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+        }
+
+        td {
+            color: dimgray;
+            padding-left: .5em;
+            font-size: 1em;
+            vertical-align: middle;
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        th {
+            font-size: 1.2em;
+            font-weight: 500;
+            text-align: left;
+            border-bottom: 1px solid silver;
+            padding-top: 1em;
+        }
+    </style>
+</head>
+<body style="background-color: white">
+    <div style="text-align: center; display: inline-block">
+        <table>
+            <tr>
+                <th colspan="2">
+                    Information
+                </th>
+            </tr>
+            <tr>
+                <td>Logged on user name:</td>
+                <td>
+                    @Html.DisplayFor(model => model.LoggedOnUser)
+                </td>
+            </tr>
+            <tr>
+                <td>Authentication mode:</td>
+                <td>
+                    @Html.DisplayFor(model => model.AuthenticationMode)
+                </td>
+            </tr>
+            <tr>
+                <td>Allow anonymous users:</td>
+                <td>
+                    @Html.DisplayFor(model => model.AllowAnonymous)
+                </td>
+            </tr>
+            <tr>
+                <td>Allow everyone:</td>
+                <td>
+                    @Html.DisplayFor(model => model.AllowEveryone)
+                </td>
+            </tr>
+            <tr>
+                <td>Windows logon name:</td>
+                <td>
+                    @Html.DisplayFor(model => model.CurrentUser)
+                </td>
+            </tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr>
+                <td>Hantera Styra version:</td>
+                <td>
+                    @Html.DisplayFor(model => model.Version)
+                </td>
+            </tr>
+            <tr>
+                <td>.Net v.4.5 installed:</td>
+                <td>@Html.DisplayFor(model => model.DotNet_4_5_installed)</td>
+            </tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr>
+                <td>Server domain name:</td>
+                <td>
+                    @Html.DisplayFor(model => model.CurrentDomain)
+                </td>
+            </tr>
+        </table>
+    </div>
+    </div>
+</body>
+</html>

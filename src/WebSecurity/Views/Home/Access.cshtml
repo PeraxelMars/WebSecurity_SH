@@ -1,0 +1,12 @@
+﻿@using SH_WebSecurity.Filters
+
+@section Header {
+    <div>
+        <div style="text-align: center; line-height: 1.4em; font-size: 2em; padding:1em 0">
+            Access grated to role(s): @ViewBag.Roles
+        </div>
+        <div style="text-align:right; margin:1em">
+            <button onclick="javascript: history.back();">Back</button>
+        </div>
+    </div>
+}

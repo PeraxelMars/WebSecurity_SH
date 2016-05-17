@@ -1,0 +1,79 @@
+﻿@model LoginInfo
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+    <script src="~/Scripts/md5.js"></script>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <style>
+        #logInTable tr {
+            border: 0 !important;
+        }
+    </style>
+    <meta name="description" content="The description of my page" />
+</head>
+<body>
+    @using (Html.BeginForm(new { returnUrl = ViewBag.ReturnUrl }))
+    {
+        @Html.AntiForgeryToken()
+        <div style="text-align: center; padding-top: 100px">
+            <p style="font-size: 2em; margin: 0">INLOGGNING</p>
+            <br />
+            <section style="display: inline-block; padding:0 1em" class="main-content">
+                <div class="header" style="padding-top: .5em">
+                    @Html.ValidationSummary(false)
+                    <div style="text-align: center; font-weight:bold; font-size:1.5em;">
+                        <img src="~/Images/medium_user.png" style="padding: 0; vertical-align:text-bottom" />
+                        <div style="line-height:3em; display:inline-block">LOG IN</div>
+                    </div>
+                </div>
+                <div class="detailsTableDiv">
+                    <table class="detailsTable" id="logInTable" style="text-align: left">
+                        <tr>
+                            <td>@Html.LabelFor(m => m.Username)</td>
+                            <td>
+                                @Html.TextBoxFor(m => m.Username, new { autofocus = "autofocus" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>@Html.LabelFor(m => m.Password)</td>
+                            <td>
+                                @Html.PasswordFor(m => m.Password)
+                                @Html.HiddenFor(m => m.PW_MD5)
+                                @Html.Hidden("PasswordSalt", Session["PasswordSalt"])
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align:right">
+                                <button id="btnLogin" class="button redButton" type="submit" style="margin: 10px 0">Log in</button><br />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+        </div>
+    }
+    <script>
+        $(document).ready(function () {
+            $("#Username").focus();
+            $("#btnLogin").click(function () {
+                hex_md5($("#Password").val(), document.getElementById("PasswordSalt"), document.getElementById("PW_MD5"));
+                $("#PasswordSalt").val("");
+                var pwReplacement = new Array($("#Password").val().length + 1).join('*');
+                $("#Password").val(pwReplacement);
+            });
+        });
+    </script>
+</body>
+</html>

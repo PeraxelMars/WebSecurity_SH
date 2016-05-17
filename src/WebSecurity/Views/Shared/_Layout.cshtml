@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="PoC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta charset="utf-8" />
+    <title>@HttpContext.Current.Application["theTitle"]</title>
+    <link href='~/favicon.ico' rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @RenderSection("Scripts", required: false)
+</head>
+<body>
+
+    <div id="body" class="outerMargin">
+        <div class="content-wrapper" style="background-color: transparent; top: 25px; position: relative;">
+            @RenderSection("SubMenu", required: false)
+        </div>
+        <div style="text-align: center;">
+            <section class="content-wrapper-main main-content clear-fix">
+                @RenderSection("Header", required: false)
+                @RenderSection("Message", required: false)
+                @RenderBody()
+            </section>
+            @RenderSection("SubSection", required: false)
+        </div>
+    </div>
+    <script>
+        $(function () {
+            /*
+             * this swallows backspace keys on any non-input element.
+             * stops backspace -> back
+             */
+            var rx = /INPUT|SELECT|TEXTAREA/i;
+
+            $(document).bind("keydown keypress", function (e) {
+                if (e.which == 8) { // 8 == backspace
+                    if (!rx.test(e.target.tagName) || e.target.disabled || e.target.readOnly) {
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            $("#body").on("click", function () { $('#divSearchResult').slideUp(200) });
+        });
+
+        function ShowOpMenu() {
+            $('#divMenu').toggle(250);
+            return false;
+        }
+    </script>
+</body>
+</html>

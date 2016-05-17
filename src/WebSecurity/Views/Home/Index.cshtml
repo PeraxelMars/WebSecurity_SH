@@ -1,0 +1,51 @@
+﻿@using SH_WebSecurity.Filters
+
+@section Header {
+    <div>
+        <div style="text-align: center; line-height: 1.4em; font-size: 2em; padding:1em 0">
+            WELCOME
+        </div>
+
+        <div style="text-align:center">
+            <div style="display:inline-block; text-align:left">
+                @{
+                    var theUser = String.IsNullOrEmpty(User.Identity.Name) ? "None" : User.Identity.Name;
+                    var sessionTest = Session["SessionTest"] ?? "Has expired";
+                }
+                <table>
+                    <tr><td>Environment.UserName:</td><td>@Environment.UserName</td></tr>
+                    <tr><td>Context.User.Identity.Name:</td><td>@theUser</td></tr>
+                    @{if (User.Identity is FormsIdentity)
+                        {
+                            <tr><td>Original issue time:</td><td>@ViewBag.OrgIssuDate</td></tr>
+                            <tr><td>Last issue time:</td><td>@ViewBag.IssueDate</td></tr>
+                            <tr><td>Expiration:</td><td>@ViewBag.Expiration</td></tr>
+                            <tr><td>Sliding Expiration:</td><td>@ViewBag.SlidingExpiration</td></tr>
+                        }
+                    }
+                    <tr><td>Session timeout at:</td><td>@sessionTest</td></tr>
+                    <tr><td>Client IP address:</td><td>@ViewBag.UserHostAddress</td></tr>
+
+                </table>
+            </div>
+            <div style="margin:1em 0">
+
+                <table style="width:100%">
+                    <tr>
+
+                        <td><button onclick="location='@Url.Action("Access")'">Access</button></td>
+                        <td><button onclick="location='@Url.Action("NoAccess")'">No Access</button></td>
+                        <td>
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" onclick="$(this).closest('form').submit();">Logga ut</button>
+                            }
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+}
